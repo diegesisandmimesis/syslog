@@ -48,12 +48,12 @@
 //		// This will not produce any output
 //		obj.log();
 //
-//		syslog.enable('flagtest');
+//		syslog.enable('testflag');
 //
 //		// Now it will output "FlagTest: testing 123"
 //		obj.log();
 //
-//		syslog.disable('flagtest');
+//		syslog.disable('testflag');
 //
 //		// No output again
 //		obj.log();
