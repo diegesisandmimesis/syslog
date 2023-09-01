@@ -4,7 +4,7 @@
 // Version 1.0
 // Copyright 2022 Diegesis & Mimesis
 //
-// This is a very simple demonstration "game" for the syslog library.
+// This is a noninteractive demo of the syslog logging functions.
 //
 // It can be compiled via the included makefile with
 //
@@ -19,28 +19,66 @@
 #include <adv3.h>
 #include <en_us.h>
 
-versionInfo:    GameID
-        name = 'syslog Library Demo Game'
-        byline = 'Diegesis & Mimesis'
-        desc = 'Demo game for the syslog library. '
-        version = '1.0'
-        IFID = '12345'
-	showAbout() {
-		"This is a simple test game that demonstrates the features
-		of the syslog library.
-		<.p>
-		Consult the README.txt document distributed with the library
-		source for a quick summary of how to use the library in your
-		own games.
-		<.p>
-		The library source is also extensively commented in a way
-		intended to make it as readable as possible. ";
+#include "syslog.h"
+
+class Foo: Syslog;
+class Bar: Syslog syslogID = 'bar';
+class FlagTest: Syslog syslogID = 'flagTest';
+
+versionInfo: GameID;
+gameMain: GameMainDef
+	disclaimer() {
+#ifdef SYSLOG
+		"<b>LOGGING ENABLED</b>\n ";
+		"<.p>Demo compiled with <b>-D SYSLOG</b>\n ";
+		"<.p>Demo compiled with <b>-D SYSLOG_OBJ</b> (object IDs
+			will be added)\n ";
+#else // SYSLOG
+		"<b>LOGGING DISABLED</b>\n ";
+		"<.p>Demo compiled without <b>-D SYSLOG</b>\n ";
+#endif // SYSLOG
+		"<.p> ";
+	}
+
+	newGame() {
+		disclaimer();
+		logBasic();
+		logFlags();
+	}
+
+	logBasic() {
+		local obj0, obj1;
+
+		"<.p><b>BASIC LOGGING</b>\n ";
+		"<.p> ";
+		obj0 = new Foo();
+		obj0._debug('the ID for this message should be an object
+			reference.');
+
+		obj1 = new Bar();
+		obj1._debug('the ID for this message should be <q>bar</q>');
+	}
+
+	logFlags() {
+		local obj0, obj1;
+
+		"<.p><b>LOGGING FLAGS</b>\n ";
+		"<.p> ";
+		syslog.enable('flagtest1');
+		syslog.enable('flagtest2');
+
+		obj0 = new FlagTest();
+		obj1 = new FlagTest();
+
+		obj0._debug('this message should be displayed', 'flagtest1');
+		obj1._debug('this message should also be displayed',
+			'flagtest2');
+
+		syslog.disable('flagtest2');
+		obj0._debug('this message should be displayed again',
+			'flagtest1');
+		obj1._debug('this message should not be displayed',
+			'flagtest2');
 	}
 ;
 
-startRoom: Room 'Void'
-        "This is a featureless void."
-;
-+me: Person;
-
-gameMain:       GameMainDef initialPlayerChar = me;
