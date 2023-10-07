@@ -24,6 +24,7 @@
 class Foo: Syslog;
 class Bar: Syslog syslogID = 'bar';
 class FlagTest: Syslog syslogID = 'flagTest';
+class ServiceTest: Syslog syslogID = 'serviceID' syslogFlag = 'serviceFlag';
 
 versionInfo: GameID;
 gameMain: GameMainDef
@@ -44,6 +45,7 @@ gameMain: GameMainDef
 		disclaimer();
 		logBasic();
 		logFlags();
+		logService();
 	}
 
 	logBasic() {
@@ -79,6 +81,18 @@ gameMain: GameMainDef
 			'flagtest1');
 		obj1._debug('this message should not be displayed',
 			'flagtest2');
+		syslog.disable('flagtest1');
+	}
+
+	logService() {
+		local obj;
+
+		"<.p><b>SERVICE FLAGS</b>\n ";
+		"<.p> ";
+		obj = new ServiceTest();
+		obj._syslog('this message should not be displayed');
+		syslog.enable('serviceFlag');
+		obj._syslog('this message should be displayed');
 	}
 ;
 

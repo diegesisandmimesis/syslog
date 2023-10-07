@@ -102,7 +102,9 @@ syslog: object
 // Stub object.
 class Syslog: object
 	syslogID = nil
+	syslogFlag = nil
 	_debug(msg, flg?) {}
+	_syslog(msg) { _debug(msg, syslogFlag); }
 	_error(msg) {}
 ;
 
