@@ -26,6 +26,9 @@ class Bar: Syslog syslogID = 'bar';
 class FlagTest: Syslog syslogID = 'flagTest';
 class ServiceTest: Syslog syslogID = 'serviceID' syslogFlag = 'serviceFlag';
 
+class Baz: object syslogID = 'baz';
+
+
 versionInfo: GameID;
 gameMain: GameMainDef
 	disclaimer() {
@@ -43,9 +46,11 @@ gameMain: GameMainDef
 
 	newGame() {
 		disclaimer();
+
 		logBasic();
 		logFlags();
 		logService();
+		logAll();
 	}
 
 	logBasic() {
@@ -93,6 +98,21 @@ gameMain: GameMainDef
 		obj._syslog('this message should not be displayed');
 		syslog.enable('serviceFlag');
 		obj._syslog('this message should be displayed');
+	}
+
+	logAll() {
+#ifdef SYSLOG_ALL
+		local obj;
+
+		"<.p><b>SYSLOG ALL</b>\n ";
+		"<.p> ";
+		obj = new Baz();
+		obj._debug('this is a non-Syslog instance logging');
+#else // SYSLOG_ALL
+		"<.p><b>SYSLOG ALL NOT ENABLED</b>\n ";
+		"<.p> ";
+		"Recompile with -D SYSLOG_ALL to enable.\n ";
+#endif // SYSLOG_ALL
 	}
 ;
 

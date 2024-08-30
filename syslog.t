@@ -76,8 +76,17 @@
 // This is included whether or not we're compiled with -D SYSLOG
 // so stuff that enabled/disables logging doesn't have to be stuffed
 // in preprocessor flags.
-syslog: object
+syslog: PreinitObject
 	_flag = perInstance(new LookupTable)	// hash table for our "flags"
+
+	initFlags = nil
+	active = true
+
+	execute() {
+		if(initFlags == nil) return;
+		if(!initFlags.ofKind(Collection)) initFlags = [ initFlags ];
+		initFlags.forEach({x : enable(x) });
+	}
 
 	// Flag handling methods.
 	enable(f) { _flag[f] = true; }			// set flag
@@ -86,6 +95,9 @@ syslog: object
 
 	// Main debugging output method.
 	debug(svc, msg, flg?, obj?) {
+		if(!active)
+			return;
+
 		// If a flag is given, make sure it's currently set.
 		if((flg != nil) && (check(flg) != true))
 			return;
@@ -96,7 +108,7 @@ syslog: object
 	}
 
 	// Like the debug method, only we output no matter what.
-	error(svc, msg, obj?) { aioSay('\n<<svc>>: <<msg>>\n '); }
+	error(svc, msg, obj?) { if(active) aioSay('\n<<svc>>: <<msg>>\n '); }
 ;
 
 // Stub object.
@@ -139,3 +151,25 @@ modify Syslog
 #endif // SYSLOG_OBJ
 
 #endif // SYSLOG
+
+
+#ifdef SYSLOG_ALL
+
+modify TadsObject
+	syslogID = nil
+	syslogFlag = nil
+	_debug(msg, flg?) {}
+	_syslog(msg) { _debug(msg, syslogFlag); }
+	_error(msg) {}
+;
+
+#ifdef SYSLOG
+modify TadsObject
+	getSyslogID() { return(syslogID ? syslogID : toString(self)); }
+	_debug(msg, flg?) { syslog.debug(getSyslogID(), msg, flg); }
+	_error(msg) { syslog.error(getSyslogID(), msg); }
+;
+#endif // SYSLOG
+
+#endif // SYSLOG_ALL
+
